@@ -67,6 +67,36 @@
             <if test="type != null and type != ''">
                 AND type = #{type}
             </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="location != null and location != ''">
+                AND location LIKE CONCAT('%', #{location}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectListWithStatusIn" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM item
+        <where>
+            <if test="statusList != null and statusList.length > 0">
+                AND status IN
+                <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="location != null and location != ''">
+                AND location LIKE CONCAT('%', #{location}, '%')
+            </if>
         </where>
         ORDER BY create_time DESC
     </select>
@@ -75,7 +105,21 @@
         SELECT
         <include refid="Base_Column_List"/>
         FROM item
-        WHERE user_id = #{userId}
+        <where>
+            user_id = #{userId}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="location != null and location != ''">
+                AND location LIKE CONCAT('%', #{location}, '%')
+            </if>
+        </where>
         ORDER BY create_time DESC
     </select>
 
@@ -115,5 +159,125 @@
         SELECT COUNT(*)
         FROM item
         WHERE DATE(create_time) = CURDATE()
+    </select>
+    
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM item
+        WHERE id = #{id}
+    </delete>
+    
+    <select id="countByType" resultType="java.util.Map">
+        SELECT 
+            type_values.type,
+            COALESCE(item_counts.count, 0) as count
+        FROM (
+            SELECT 'lost' as type UNION ALL
+            SELECT 'claim' as type
+        ) type_values
+        LEFT JOIN (
+            SELECT type, COUNT(*) as count
+            FROM item
+            GROUP BY type
+        ) item_counts ON type_values.type = item_counts.type
+        ORDER BY type_values.type
+    </select>
+    
+    <select id="countByStatus" resultType="java.util.Map">
+        SELECT 
+            status_values.status,
+            COALESCE(item_counts.count, 0) as count
+        FROM (
+            SELECT 0 as status UNION ALL
+            SELECT 1 as status UNION ALL
+            SELECT 2 as status UNION ALL
+            SELECT 3 as status
+        ) status_values
+        LEFT JOIN (
+            SELECT status, COUNT(*) as count
+            FROM item
+            GROUP BY status
+        ) item_counts ON status_values.status = item_counts.status
+        ORDER BY status_values.status
+    </select>
+    
+    <select id="countByDay" resultType="java.util.Map">
+        SELECT 
+            date_values.day,
+            COALESCE(item_counts.count, 0) as count
+        FROM (
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(CURDATE(), '%Y-%m-%d') as day
+        ) date_values
+        LEFT JOIN (
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') as day, COUNT(*) as count
+            FROM item
+            WHERE create_time >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            GROUP BY DATE_FORMAT(create_time, '%Y-%m-%d')
+        ) item_counts ON date_values.day = item_counts.day
+        ORDER BY date_values.day
+    </select>
+    
+    <select id="countUserItemByType" resultType="java.util.Map">
+        SELECT 
+            type_values.type,
+            COALESCE(item_counts.count, 0) as count
+        FROM (
+            SELECT 'lost' as type UNION ALL
+            SELECT 'claim' as type
+        ) type_values
+        LEFT JOIN (
+            SELECT type, COUNT(*) as count
+            FROM item
+            WHERE user_id = #{userId}
+            GROUP BY type
+        ) item_counts ON type_values.type = item_counts.type
+        ORDER BY type_values.type
+    </select>
+    
+    <select id="countUserItemByDay" resultType="java.util.Map">
+        SELECT 
+            date_values.day,
+            COALESCE(item_counts.count, 0) as count
+        FROM (
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '%Y-%m-%d') as day UNION ALL
+            SELECT DATE_FORMAT(CURDATE(), '%Y-%m-%d') as day
+        ) date_values
+        LEFT JOIN (
+            SELECT DATE_FORMAT(create_time, '%Y-%m-%d') as day, COUNT(*) as count
+            FROM item
+            WHERE user_id = #{userId}
+            AND create_time >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            GROUP BY DATE_FORMAT(create_time, '%Y-%m-%d')
+        ) item_counts ON date_values.day = item_counts.day
+        ORDER BY date_values.day
+    </select>
+    
+    <select id="countUserItemByStatus" resultType="java.util.Map">
+        SELECT 
+            status_values.status,
+            COALESCE(item_counts.count, 0) as count
+        FROM (
+            SELECT 0 as status UNION ALL
+            SELECT 1 as status UNION ALL
+            SELECT 2 as status UNION ALL
+            SELECT 3 as status
+        ) status_values
+        LEFT JOIN (
+            SELECT status, COUNT(*) as count
+            FROM item
+            WHERE user_id = #{userId}
+            GROUP BY status
+        ) item_counts ON status_values.status = item_counts.status
+        ORDER BY status_values.status
     </select>
 </mapper>

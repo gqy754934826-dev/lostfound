@@ -10,6 +10,11 @@ import lombok.Data;
 @Data
 public class ItemDTO {
     /**
+     * 信息ID
+     */
+    private Long id;
+    
+    /**
      * 标题
      */
     @NotBlank(message = "标题不能为空")
@@ -43,4 +48,9 @@ public class ItemDTO {
      * 图片URL
      */
     private String imageUrl;
+    
+    /**
+     * 状态（0待审核，1已通过，2已拒绝，3已解决）
+     */
+    private Integer status;
 }
