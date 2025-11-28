@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fcd0ac9b-a21f-4876-92e2-3e20cb8a054c" name="更改" comment="添加管理员端消息提示">
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/lostfound/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/lostfound/config/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/config/WebSocketConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/config/WebSocketConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/listener/ChatMessageListener.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/listener/ChatMessageListener.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/mapper/UserContactMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/mapper/UserContactMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/UserContact.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/UserContact.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/vo/ItemVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/vo/ItemVO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/vo/PageResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/vo/PageResult.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/websocket/ChatWebSocketServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/websocket/ChatWebSocketServer.class" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;gqy754934826-dev&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/gqy754934826-dev/lostfound.git&quot;,
+    &quot;accountId&quot;: &quot;75a7c5a8-003d-4d33-8b8e-0b95b86dac0f&quot;
+  }
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="customMavenHome" value="E:\Java\apache-maven-3.9.9" />
+        <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
+        <option name="userSettingsFile" value="E:\Java\apache-maven-3.9.9\conf\settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="17" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="32fxYA871pXDXJAeoD4uvhNUN3T" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.LostFoundApplication.executor&quot;: &quot;Debug&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/JavaDemo/project1/lostfound&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDK&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.javacompiler&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ]
+  }
+}</component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RunManager">
+    <configuration name="LostFoundApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="lostfound" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.lostfound.LostFoundApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28238.7" />
+        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.28238.7" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="fcd0ac9b-a21f-4876-92e2-3e20cb8a054c" name="更改" comment="" />
+      <created>1757825472315</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1757825472315</updated>
+      <workItem from="1757825473723" duration="755000" />
+      <workItem from="1757826245711" duration="139000" />
+      <workItem from="1757837909333" duration="2268000" />
+      <workItem from="1757928286488" duration="578000" />
+      <workItem from="1758071043277" duration="3549000" />
+      <workItem from="1758512636957" duration="922000" />
+      <workItem from="1758639633494" duration="500000" />
+      <workItem from="1759991182354" duration="249000" />
+      <workItem from="1759991451814" duration="995000" />
+      <workItem from="1759992469371" duration="347000" />
+      <workItem from="1759993058495" duration="350000" />
+      <workItem from="1759993445663" duration="24000" />
+      <workItem from="1763608017691" duration="682000" />
+      <workItem from="1763608771430" duration="675000" />
+      <workItem from="1763609796060" duration="989000" />
+      <workItem from="1763886625068" duration="730000" />
+      <workItem from="1763888716890" duration="232000" />
+      <workItem from="1763901249719" duration="48000" />
+    </task>
+    <task id="LOCAL-00001" summary="校园失物招领后端代码">
+      <option name="closed" value="true" />
+      <created>1757826033937</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1757826033937</updated>
+    </task>
+    <task id="LOCAL-00002" summary="聊天功能优化">
+      <option name="closed" value="true" />
+      <created>1757840533050</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1757840533050</updated>
+    </task>
+    <task id="LOCAL-00003" summary="优化聊天功能，添加数据报表">
+      <option name="closed" value="true" />
+      <created>1759991240447</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1759991240447</updated>
+    </task>
+    <task id="LOCAL-00004" summary="添加管理员端消息提示">
+      <option name="closed" value="true" />
+      <created>1763609315215</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1763609315215</updated>
+    </task>
+    <task id="LOCAL-00005" summary="添加管理员端消息提示">
+      <option name="closed" value="true" />
+      <created>1763609389813</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1763609389813</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="校园失物招领后端代码" />
+    <MESSAGE value="聊天功能优化" />
+    <MESSAGE value="优化聊天功能，添加数据报表" />
+    <MESSAGE value="添加管理员端消息提示" />
+    <option name="LAST_COMMIT_MESSAGE" value="添加管理员端消息提示" />
+  </component>
+</project>
