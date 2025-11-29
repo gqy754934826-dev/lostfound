@@ -6,11 +6,17 @@ import com.example.lostfound.pojo.dto.AdminLoginDTO;
 import com.example.lostfound.pojo.vo.Result;
 import com.example.lostfound.service.AdminService;
 import com.example.lostfound.service.UserService;
+import com.example.lostfound.util.CaptchaUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.Base64;
 
 import java.util.List;
 
@@ -70,8 +76,8 @@ public class AdminController {
      * @return 结果
      */
     @PutMapping("/user/status")
-    public Result<String> updateUserStatus(@RequestParam("userId") Long userId,
-                                          @RequestParam("status") Integer status) {
+    public Result<String> updateUserStatus(Long userId,
+                                          Integer status) {
         log.info("更新用户状态：userId={}, status={}", userId, status);
         return userService.updateStatus(userId, status);
     }
@@ -84,5 +90,25 @@ public class AdminController {
             token = authorizationHeader.substring(7);
         }
         return adminService.logout(token);
+    }
+    
+    /**
+     * 获取验证码
+     *
+     * @param session HttpSession
+     * @return 验证码图片
+     */
+    @GetMapping("/captcha")
+    public Result<String> getCaptcha(HttpSession session) {
+        CaptchaUtil.CaptchaResult captchaResult = CaptchaUtil.generateCaptcha();
+        if (captchaResult != null) {
+            // 将验证码文本存储在session中
+            session.setAttribute("captcha", captchaResult.getText());
+            
+            // 返回Base64编码的图片
+            return Result.success(captchaResult.getImage());
+        } else {
+            return Result.error("验证码生成失败");
+        }
     }
 }

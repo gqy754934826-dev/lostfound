@@ -9,12 +9,15 @@ import com.example.lostfound.service.UserService;
 import com.example.lostfound.util.JwtUtil;
 import com.example.lostfound.util.OssUtil;
 import com.example.lostfound.util.RedisUtil;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -70,6 +73,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result<String> login(UserLoginDTO loginDTO) {
+        // 获取当前会话
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session = attributes.getRequest().getSession();
+        
+        // 获取session中的验证码
+        String sessionCaptcha = (String) session.getAttribute("captcha");
+        
+        // 移除session中的验证码，确保验证码只能使用一次
+        session.removeAttribute("captcha");
+        
+        // 校验验证码
+        if (sessionCaptcha == null) {
+            return Result.error("验证码已过期，请重新获取");
+        }
+        
+        if (!sessionCaptcha.equalsIgnoreCase(loginDTO.getCaptcha())) {
+            return Result.error("验证码错误");
+        }
+        
         // 查询用户
         User user = userMapper.selectByUsername(loginDTO.getUsername());
         if (user == null) {
@@ -258,3 +280,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 }
+
+
+

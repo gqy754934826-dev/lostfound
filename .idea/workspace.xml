@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fcd0ac9b-a21f-4876-92e2-3e20cb8a054c" name="更改" comment="添加管理员端消息提示">
+    <list default="true" id="fcd0ac9b-a21f-4876-92e2-3e20cb8a054c" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/lostfound/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/lostfound/config/WebConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/config/WebSocketConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/config/WebSocketConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/listener/ChatMessageListener.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/listener/ChatMessageListener.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/mapper/UserContactMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/mapper/UserContactMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/UserContact.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/UserContact.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/vo/ItemVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/vo/ItemVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/vo/PageResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/pojo/vo/PageResult.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/lostfound/websocket/ChatWebSocketServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/lostfound/websocket/ChatWebSocketServer.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,36 +48,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Spring Boot.LostFoundApplication.executor&quot;: &quot;Debug&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/JavaDemo/project1/lostfound&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;SDK&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.javacompiler&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.LostFoundApplication.executor": "Debug",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/JavaDemo/project1/lostfound",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "SDK",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "通义灵码",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -129,6 +123,9 @@
       <workItem from="1763886625068" duration="730000" />
       <workItem from="1763888716890" duration="232000" />
       <workItem from="1763901249719" duration="48000" />
+      <workItem from="1764316466959" duration="240000" />
+      <workItem from="1764316719004" duration="203000" />
+      <workItem from="1764317089500" duration="686000" />
     </task>
     <task id="LOCAL-00001" summary="校园失物招领后端代码">
       <option name="closed" value="true" />
@@ -193,5 +190,9 @@
     <MESSAGE value="优化聊天功能，添加数据报表" />
     <MESSAGE value="添加管理员端消息提示" />
     <option name="LAST_COMMIT_MESSAGE" value="添加管理员端消息提示" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

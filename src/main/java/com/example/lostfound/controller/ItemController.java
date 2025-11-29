@@ -37,13 +37,7 @@ public class ItemController {
      */
     @PostMapping("/publish")
     public Result<String> publishItem(@RequestBody @Valid ItemDTO itemDTO, HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("发布信息失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         log.info("发布信息：userId={}, title={}", userId, itemDTO.getTitle());
         return itemService.publishItem(itemDTO, userId);
     }
@@ -55,7 +49,7 @@ public class ItemController {
      * @return 结果
      */
     @PostMapping("/upload")
-    public Result<String> uploadItemImage(@RequestParam("file") MultipartFile file) {
+    public Result<String> uploadItemImage(MultipartFile file) {
         return itemService.uploadItemImage(file);
     }
 
@@ -71,12 +65,12 @@ public class ItemController {
      * @return 结果
      */
     @GetMapping("/list")
-    public Result<PageResult<ItemVO>> getItemList(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
-                                             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                             @RequestParam(value = "status", required = false) Integer status,
-                                             @RequestParam(value = "type", required = false) String type,
-                                             @RequestParam(value = "title", required = false) String title,
-                                             @RequestParam(value = "location", required = false) String location,
+    public Result<PageResult<ItemVO>> getItemList(int pageNum,
+                                             int pageSize,
+                                             Integer status,
+                                             String type,
+                                             String title,
+                                             String location,
                                              HttpServletRequest request) {
         String role = (String) request.getAttribute("role");
         log.info("获取信息列表：pageNum={}, pageSize={}, status={}, type={}, title={}, location={}, role={}", 
@@ -110,19 +104,13 @@ public class ItemController {
      */
     @GetMapping("/user/list")
     public Result<PageInfo<Item>> getUserItemList(HttpServletRequest request,
-                                                 @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
-                                                 @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-                                                 @RequestParam(value = "title", required = false) String title,
-                                                 @RequestParam(value = "location", required = false) String location,
-                                                 @RequestParam(value = "type", required = false) String type,
-                                                 @RequestParam(value = "status", required = false) Integer status) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("获取用户发布的信息列表失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+                                                 int pageNum,
+                                                 int pageSize,
+                                                 String title,
+                                                 String location,
+                                                 String type,
+                                                 Integer status) {
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         log.info("获取用户发布的信息列表：userId={}, pageNum={}, pageSize={}, title={}, location={}, type={}, status={}", 
                 userId, pageNum, pageSize, title, location, type, status);
         return itemService.getUserItemList(userId, pageNum, pageSize, title, location, type, status);
@@ -137,16 +125,10 @@ public class ItemController {
      * @return 结果
      */
     @PutMapping("/status")
-    public Result<String> updateItemStatus(@RequestParam("itemId") Long itemId,
-                                          @RequestParam("status") Integer status,
+    public Result<String> updateItemStatus(Long itemId,
+                                          Integer status,
                                           HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("更新信息状态失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         
         // 获取用户角色
         String role = (String) request.getAttribute("role");
@@ -163,8 +145,8 @@ public class ItemController {
      * @return 结果
      */
     @GetMapping("/admin/pending")
-    public Result<PageInfo<Item>> getPendingItemList(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
-                                                   @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+    public Result<PageInfo<Item>> getPendingItemList(int pageNum,
+                                                   int pageSize) {
         return itemService.getPendingItemList(pageNum, pageSize);
     }
 
@@ -176,13 +158,7 @@ public class ItemController {
      */
     @GetMapping("/user/dashboard")
     public Result<Map<String, Object>> getUserDashboard(HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("获取用户仪表盘数据失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return itemService.getUserDashboard(userId);
     }
 
@@ -234,13 +210,7 @@ public class ItemController {
      */
     @GetMapping("/user/stats/type")
     public Result<List<Map<String, Object>>> getUserItemTypeStats(HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("获取用户信息类型统计数据失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return itemService.getUserItemTypeStats(userId);
     }
     
@@ -252,13 +222,7 @@ public class ItemController {
      */
     @GetMapping("/user/stats/daily")
     public Result<List<Map<String, Object>>> getUserItemDailyStats(HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("获取用户每日统计数据失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return itemService.getUserItemDailyStats(userId);
     }
     
@@ -270,13 +234,7 @@ public class ItemController {
      */
     @GetMapping("/user/stats/status")
     public Result<List<Map<String, Object>>> getUserItemStatusStats(HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("获取用户信息状态统计数据失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return itemService.getUserItemStatusStats(userId);
     }
     
@@ -289,13 +247,7 @@ public class ItemController {
      */
     @DeleteMapping("/delete/{itemId}")
     public Result<String> deleteItem(@PathVariable("itemId") Long itemId, HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("删除信息失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         
         // 获取用户角色
         String role = (String) request.getAttribute("role");
@@ -313,13 +265,7 @@ public class ItemController {
      */
     @PutMapping("/update")
     public Result<String> updateItem(@RequestBody @Valid ItemDTO itemDTO, HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("更新信息失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         
         // 获取用户角色
         String role = (String) request.getAttribute("role");
@@ -337,13 +283,7 @@ public class ItemController {
      */
     @PutMapping("/complete/{itemId}")
     public Result<String> completeItem(@PathVariable("itemId") Long itemId, HttpServletRequest request) {
-        // 获取userId并进行空值检查
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("标记完成失败：userId为空");
-            return Result.error("用户未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         
         // 获取用户角色
         String role = (String) request.getAttribute("role");

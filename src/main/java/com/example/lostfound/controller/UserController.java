@@ -5,12 +5,18 @@ import com.example.lostfound.pojo.dto.UserLoginDTO;
 import com.example.lostfound.pojo.dto.UserRegisterDTO;
 import com.example.lostfound.pojo.vo.Result;
 import com.example.lostfound.service.UserService;
+import com.example.lostfound.util.CaptchaUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Base64;
 
 /**
  * 用户控制器
@@ -81,7 +87,7 @@ public class UserController {
      * @return 结果
      */
     @PostMapping("/avatar")
-    public Result<String> updateAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public Result<String> updateAvatar(MultipartFile file, HttpServletRequest request) {
         Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return userService.updateAvatar(userId, file);
     }
@@ -95,8 +101,8 @@ public class UserController {
      * @return 结果
      */
     @PutMapping("/password")
-    public Result<String> updatePassword(@RequestParam("oldPassword") String oldPassword,
-                                        @RequestParam("newPassword") String newPassword,
+    public Result<String> updatePassword(String oldPassword,
+                                        String newPassword,
                                         HttpServletRequest request) {
         Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return userService.updatePassword(userId, oldPassword, newPassword);
@@ -110,5 +116,25 @@ public class UserController {
             token = authorizationHeader.substring(7);
         }
         return userService.logout(token);
+    }
+    
+    /**
+     * 获取验证码
+     *
+     * @param session HttpSession
+     * @return 验证码图片
+     */
+    @GetMapping("/captcha")
+    public Result<String> getCaptcha(HttpSession session) {
+        CaptchaUtil.CaptchaResult captchaResult = CaptchaUtil.generateCaptcha();
+        if (captchaResult != null) {
+            // 将验证码文本存储在session中
+            session.setAttribute("captcha", captchaResult.getText());
+            
+            // 返回Base64编码的图片
+            return Result.success(captchaResult.getImage());
+        } else {
+            return Result.error("验证码生成失败");
+        }
     }
 }

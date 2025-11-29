@@ -33,12 +33,7 @@ public class ChatController {
      */
     @PostMapping("/send")
     public Result<String> sendMessage(@RequestBody @Valid ChatDTO chatDTO, HttpServletRequest request) {
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("发送消息失败: userId为null，可能是JWT拦截器未拦截该请求");
-            return Result.error("未登录或登录已过期");
-        }
-        Long fromUserId = Long.valueOf(userIdObj.toString());
+        Long fromUserId = Long.valueOf(request.getAttribute("userId").toString());
         log.info("发送消息：fromUserId={}, toUserId={}", fromUserId, chatDTO.getToUser());
         return chatService.sendMessage(chatDTO, fromUserId);
     }
@@ -52,12 +47,7 @@ public class ChatController {
      */
     @GetMapping("/history/{otherUserId}")
     public Result<List<Chat>> getChatHistory(@PathVariable("otherUserId") Long otherUserId, HttpServletRequest request) {
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("获取聊天记录失败: userId为null，可能是JWT拦截器未拦截该请求");
-            return Result.error("未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return chatService.getChatHistory(userId, otherUserId);
     }
 
@@ -69,12 +59,7 @@ public class ChatController {
      */
     @GetMapping("/user/list/detail")
     public Result<List<Map<String, Object>>> getChatUserListWithLastMessageAndUnreadCount(HttpServletRequest request) {
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("获取聊天用户列表失败: userId为null，可能是JWT拦截器未拦截该请求");
-            return Result.error("未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return chatService.getChatUserListWithLastMessageAndUnreadCount(userId);
     }
     
@@ -87,12 +72,7 @@ public class ChatController {
      */
     @DeleteMapping("/contact/{contactUserId}")
     public Result<String> deleteContact(@PathVariable("contactUserId") Long contactUserId, HttpServletRequest request) {
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("删除联系人失败: userId为null，可能是JWT拦截器未拦截该请求");
-            return Result.error("未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         log.info("删除联系人：userId={}, contactUserId={}", userId, contactUserId);
         return chatService.deleteContact(userId, contactUserId);
     }
@@ -106,12 +86,7 @@ public class ChatController {
      */
     @PostMapping("/read/{fromUserId}")
     public Result<String> markMessageAsRead(@PathVariable("fromUserId") Long fromUserId, HttpServletRequest request) {
-        Object userIdObj = request.getAttribute("userId");
-        if (userIdObj == null) {
-            log.error("标记消息为已读失败: userId为null，可能是JWT拦截器未拦截该请求");
-            return Result.error("未登录或登录已过期");
-        }
-        Long userId = Long.valueOf(userIdObj.toString());
+        Long userId = Long.valueOf(request.getAttribute("userId").toString());
         log.info("标记消息为已读：userId={}, fromUserId={}", userId, fromUserId);
         return chatService.markMessageAsRead(userId, fromUserId);
     }
