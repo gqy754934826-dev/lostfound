@@ -54,6 +54,14 @@ public interface UserService {
     Result<String> updateAvatar(Long userId, MultipartFile file);
 
     /**
+     * 上传头像（不关联用户，用于注册时）
+     *
+     * @param file 头像文件
+     * @return 头像URL
+     */
+    String uploadAvatar(MultipartFile file);
+
+    /**
      * 更新用户密码
      *
      * @param userId      用户ID

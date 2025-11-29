@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -64,6 +65,17 @@ public class UserController {
         Long userId = Long.valueOf(request.getAttribute("userId").toString());
         return userService.getUserInfo(userId);
     }
+    
+    /**
+     * 根据用户ID获取用户信息（用于聊天功能）
+     *
+     * @param id 用户ID
+     * @return 结果
+     */
+    @GetMapping("/info/{id}")
+    public Result<User> getUserInfoById(@PathVariable("id") Long id) {
+        return userService.getUserInfo(id);
+    }
 
     /**
      * 更新用户信息
@@ -87,9 +99,36 @@ public class UserController {
      * @return 结果
      */
     @PostMapping("/avatar")
-    public Result<String> updateAvatar(MultipartFile file, HttpServletRequest request) {
-        Long userId = Long.valueOf(request.getAttribute("userId").toString());
-        return userService.updateAvatar(userId, file);
+    public Result<String> updateAvatar(@RequestParam(value = "file", required = false) MultipartFile file, 
+                                      HttpServletRequest request) {
+        // 检查文件是否为空
+        if (file == null || file.isEmpty()) {
+            // 再次尝试从request中获取文件
+            if (request instanceof MultipartHttpServletRequest) {
+                MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+                file = multipartRequest.getFile("file");
+            }
+            
+            if (file == null || file.isEmpty()) {
+                return Result.error("上传文件不能为空");
+            }
+        }
+        
+        // 检查是否是已登录用户更新头像
+        Object userIdObj = request.getAttribute("userId");
+        if (userIdObj != null) {
+            Long userId = Long.valueOf(userIdObj.toString());
+            return userService.updateAvatar(userId, file);
+        } else {
+            // 如果用户未登录，说明是注册时上传头像，直接上传文件并返回URL
+            try {
+                String avatarUrl = userService.uploadAvatar(file);
+                return Result.success(avatarUrl);
+            } catch (Exception e) {
+                log.error("上传头像失败", e);
+                return Result.error("上传头像失败: " + e.getMessage());
+            }
+        }
     }
 
     /**

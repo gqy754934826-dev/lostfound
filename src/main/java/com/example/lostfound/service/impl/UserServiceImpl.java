@@ -47,6 +47,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result<String> register(UserRegisterDTO registerDTO) {
+        // 获取当前会话
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session = attributes.getRequest().getSession();
+        
+        // 获取session中的验证码
+        String sessionCaptcha = (String) session.getAttribute("captcha");
+        
+        // 移除session中的验证码，确保验证码只能使用一次
+        session.removeAttribute("captcha");
+        
+        // 校验验证码
+        if (sessionCaptcha == null) {
+            return Result.error("验证码已过期，请重新获取");
+        }
+        
+        if (!sessionCaptcha.equalsIgnoreCase(registerDTO.getCaptcha())) {
+            return Result.error("验证码错误");
+        }
+        
         // 检查用户名是否已存在
         User existUser = userMapper.selectByUsername(registerDTO.getUsername());
         if (existUser != null) {
@@ -160,6 +179,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result<String> updateAvatar(Long userId, MultipartFile file) {
+        // 检查文件是否为空
+        if (file == null || file.isEmpty()) {
+            return Result.error("上传文件不能为空");
+        }
+        
         // 查询用户
         User user = userMapper.selectById(userId);
         if (user == null) {
@@ -180,6 +204,17 @@ public class UserServiceImpl implements UserService {
             log.error("上传头像失败", e);
             return Result.error("上传头像失败");
         }
+    }
+
+    @Override
+    public String uploadAvatar(MultipartFile file) {
+        // 检查文件是否为空
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("上传文件不能为空");
+        }
+        
+        // 直接上传头像，不关联到具体用户（用于注册时）
+        return ossUtil.uploadAvatar(file);
     }
 
     @Override
@@ -280,6 +315,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 }
+
+
+
+
+
+
 
 
 

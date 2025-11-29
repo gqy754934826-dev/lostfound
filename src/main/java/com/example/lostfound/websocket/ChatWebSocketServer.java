@@ -136,15 +136,30 @@ public class ChatWebSocketServer {
                 log.error("ObjectMapper未初始化，无法发送消息");
                 return false;
             }
+            
+            // 检查会话是否打开
+            if (this.session == null || !this.session.isOpen()) {
+                log.warn("WebSocket会话已关闭，无法发送消息给用户: {}", this.userId);
+                return false;
+            }
+            
             String messageText = objectMapper.writeValueAsString(message);
             this.session.getBasicRemote().sendText(messageText);
             return true;
         } catch (IOException e) {
-            log.error("发送WebSocket消息失败", e);
+            // 检查是否是连接中断异常
+            if (e.getMessage() != null && e.getMessage().contains("软件中止了一个已建立的连接")) {
+                log.warn("WebSocket连接已中断，无法发送消息给用户: {}", this.userId);
+            } else {
+                log.error("发送WebSocket消息失败", e);
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("发送WebSocket消息时发生未知错误", e);
             return false;
         }
     }
-    
+
     /**
      * 获取当前连接数
      */

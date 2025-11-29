@@ -58,13 +58,13 @@ public class JwtInterceptor implements HandlerInterceptor {
             // 先检查Redis中是否有token缓存
             String tokenKey = "token:" + token;
             Object cachedUserInfo = redisUtil.get(tokenKey);
-            
+
             if (cachedUserInfo != null) {
                 // 从缓存中获取用户信息
                 String[] userInfo = cachedUserInfo.toString().split(":");
                 String userIdStr = userInfo[0];
                 String role = userInfo[1];
-                
+
                 // 判断请求路径和角色是否匹配
                 if (requestURI.startsWith("/admin/") && !"admin".equals(role)) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -78,16 +78,57 @@ public class JwtInterceptor implements HandlerInterceptor {
                     return false;
                 }
 
+                // ✅ 关键修复：在重新缓存token之前，验证用户状态
+                if ("user".equals(role)) {
+                    User user = userMapper.selectById(Long.valueOf(userIdStr));
+                    if (user == null) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("用户不存在");
+                        return false;
+                    }
+                    if (user.getStatus() == 1) {
+                        // 用户已被禁用，拒绝访问，不重新缓存token
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.getWriter().write("账号已被禁用");
+                        log.info("用户已被禁用，拒绝访问: userId={}", userIdStr);
+                        return false;
+                    }
+                } else if ("admin".equals(role)) {
+                    Admin admin = adminMapper.selectById(Long.valueOf(userIdStr));
+                    if (admin == null) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("管理员不存在");
+                        return false;
+                    }
+                    if (admin.getStatus() == 1) {
+                        // 管理员已被禁用，拒绝访问
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.getWriter().write("账号已被禁用");
+                        log.info("管理员已被禁用，拒绝访问: adminId={}", userIdStr);
+                        return false;
+                    }
+                }
+
+                // ✅ 只有状态正常的用户，才重新缓存token
+                // 将用户信息缓存到Redis中（24小时过期）
+                redisUtil.set(tokenKey, userIdStr + ":" + role, 86400);
+
+                // ✅ 建立反向索引（用于禁用时清除token）
+                String tokenSetKey = "user".equals(role) ? "user:tokens:" + userIdStr : "admin:tokens:" + userIdStr;
+                redisUtil.addToSet(tokenSetKey, token);
+                redisUtil.expire(tokenSetKey, 86400);
+
                 // ✅ 将用户ID转换为Long类型后存入请求属性中
                 request.setAttribute("userId", Long.valueOf(userIdStr));
                 request.setAttribute("role", role);
-                
+
                 // 刷新缓存过期时间（24小时）
                 redisUtil.expire(tokenKey, 86400);
-                
+
                 return true;
             }
-            
+
+
             // 验证token
             if (!jwtUtil.validateToken(token)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -111,7 +152,7 @@ public class JwtInterceptor implements HandlerInterceptor {
                 response.getWriter().write("权限不足");
                 return false;
             }
-            
+
             // ✅ 关键修复：在重新缓存token之前，验证用户状态
             if ("user".equals(role)) {
                 User user = userMapper.selectById(Long.valueOf(userIdStr));
@@ -146,7 +187,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             // ✅ 只有状态正常的用户，才重新缓存token
             // 将用户信息缓存到Redis中（24小时过期）
             redisUtil.set(tokenKey, userIdStr + ":" + role, 86400);
-            
+
             // ✅ 建立反向索引（用于禁用时清除token）
             String tokenSetKey = "user".equals(role) ? "user:tokens:" + userIdStr : "admin:tokens:" + userIdStr;
             redisUtil.addToSet(tokenSetKey, token);
