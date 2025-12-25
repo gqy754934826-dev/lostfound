@@ -363,11 +363,26 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Result<PageInfo<Item>> getPendingItemList(int pageNum, int pageSize) {
+    public Result<PageInfo<ItemVO>> getPendingItemList(int pageNum, int pageSize) {
         // 分页查询
         PageHelper.startPage(pageNum, pageSize);
         List<Item> itemList = itemMapper.selectPendingList();
-        PageInfo<Item> pageInfo = new PageInfo<>(itemList);
+        
+        // 转换为ItemVO列表，包含用户名
+        List<ItemVO> itemVOList = itemList.stream().map(item -> {
+            ItemVO itemVO = new ItemVO();
+            BeanUtils.copyProperties(item, itemVO);
+            
+            // 获取用户名
+            User user = userMapper.selectById(item.getUserId());
+            if (user != null) {
+                itemVO.setUsername(user.getUsername());
+            }
+            
+            return itemVO;
+        }).toList();
+        
+        PageInfo<ItemVO> pageInfo = new PageInfo<>(itemVOList);
 
         return Result.success(pageInfo);
     }

@@ -84,7 +84,7 @@ public interface ItemService {
      * @param pageSize 每页数量
      * @return 结果
      */
-    Result<PageInfo<Item>> getPendingItemList(int pageNum, int pageSize);
+    Result<PageInfo<ItemVO>> getPendingItemList(int pageNum, int pageSize);
 
     /**
      * 获取用户仪表盘数据

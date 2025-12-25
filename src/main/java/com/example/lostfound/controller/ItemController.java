@@ -145,7 +145,7 @@ public class ItemController {
      * @return 结果
      */
     @GetMapping("/admin/pending")
-    public Result<PageInfo<Item>> getPendingItemList(int pageNum,
+    public Result<PageInfo<ItemVO>> getPendingItemList(int pageNum,
                                                    int pageSize) {
         return itemService.getPendingItemList(pageNum, pageSize);
     }

@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 用户服务实现类
@@ -109,44 +110,36 @@ public class UserServiceImpl implements UserService {
         if (sessionCaptcha == null) {
             return Result.error("验证码已过期，请重新获取");
         }
-        
         if (!sessionCaptcha.equalsIgnoreCase(loginDTO.getCaptcha())) {
             return Result.error("验证码错误");
         }
-        
         // 查询用户
         User user = userMapper.selectByUsername(loginDTO.getUsername());
         if (user == null) {
             return Result.error("用户名或密码错误");
         }
-
         // 检查密码
         String encryptPassword = DigestUtils.md5DigestAsHex(loginDTO.getPassword().getBytes());
         if (!user.getPassword().equals(encryptPassword)) {
             return Result.error("用户名或密码错误");
         }
-
         // 检查状态
         if (user.getStatus() == 1) {
             return Result.error("账号已被禁用");
         }
-
         // 生成token
         String token = jwtUtil.generateToken(String.valueOf(user.getId()), "user");
-
         // 存储token到Redis（24小时）
         String tokenKey = "token:" + token;
-        // ✅ jwtExpiration是毫秒，需要转换为秒
+        //  jwtExpiration是毫秒，需要转换为秒
         long expirationSeconds = jwtExpiration / 1000;
         redisUtil.set(tokenKey, user.getId() + ":" + "user", expirationSeconds);
         
-        // ✅ 建立userId到token的反向索引，方便禁用时清除
+        // 建立userId到token的反向索引，方便禁用时清除
         String userTokenSetKey = "user:tokens:" + user.getId();
         redisUtil.addToSet(userTokenSetKey, token);
         redisUtil.expire(userTokenSetKey, expirationSeconds);
-        
         log.info("用户登录，token已存入Redis: key={}, value={}, expiration={}秒", tokenKey, user.getId() + ":" + "user", expirationSeconds);
-
         return Result.success(token);
     }
 
@@ -320,10 +313,8 @@ public class UserServiceImpl implements UserService {
      */
     private void clearUserTokens(Long userId) {
         String userTokenSetKey = "user:tokens:" + userId;
-        
         // 获取该用户的所有token
-        java.util.Set<Object> tokens = redisUtil.getSetMembers(userTokenSetKey);
-        
+        Set<Object> tokens = redisUtil.getSetMembers(userTokenSetKey);
         if (tokens != null && !tokens.isEmpty()) {
             // 删除每个token
             for (Object tokenObj : tokens) {
@@ -331,10 +322,8 @@ public class UserServiceImpl implements UserService {
                 String tokenKey = "token:" + token;
                 redisUtil.delete(tokenKey);
             }
-            
             // 删除token集合本身
             redisUtil.delete(userTokenSetKey);
-            
             log.info("已清除用户的{}个token: userId={}", tokens.size(), userId);
         }
     }
