@@ -4,6 +4,7 @@ import com.example.lostfound.pojo.vo.ItemVO;
 import com.example.lostfound.pojo.vo.PageResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 缓存服务接口
@@ -65,4 +66,62 @@ public interface CacheService {
      * 清除信息列表缓存
      */
     void clearItemListCache();
+
+    /**
+     * 更新缓存中的信息状态
+     * 
+     * @param itemId 信息ID
+     * @param newStatus 新状态
+     */
+    void updateItemStatusInCache(Long itemId, Integer newStatus);
+    
+    /**
+     * 更新缓存中的信息详情
+     * 
+     * @param itemId 信息ID
+     * @param itemVO 更新后的信息详情
+     */
+    void updateItemDetailInCache(Long itemId, ItemVO itemVO);
+    
+    /**
+     * 缓存用户仪表盘数据
+     * 
+     * @param userId 用户ID
+     * @param dashboardData 仪表盘数据
+     */
+    void cacheUserDashboard(Long userId, Map<String, Object> dashboardData);
+    
+    /**
+     * 获取缓存的用户仪表盘数据
+     * 
+     * @param userId 用户ID
+     * @return 仪表盘数据
+     */
+    Map<String, Object> getCachedUserDashboard(Long userId);
+    
+    /**
+     * 清除用户仪表盘缓存
+     * 
+     * @param userId 用户ID
+     */
+    void clearUserDashboardCache(Long userId);
+    
+    /**
+     * 缓存全局信息状态统计
+     * 
+     * @param stats 统计数据
+     */
+    void cacheItemStatusStats(List<Map<String, Object>> stats);
+    
+    /**
+     * 获取缓存的全局信息状态统计
+     * 
+     * @return 统计数据
+     */
+    List<Map<String, Object>> getCachedItemStatusStats();
+    
+    /**
+     * 清除全局信息状态统计缓存
+     */
+    void clearItemStatusStatsCache();
 }

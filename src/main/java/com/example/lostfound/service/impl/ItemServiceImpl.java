@@ -318,14 +318,18 @@ public class ItemServiceImpl implements ItemService {
         // 更新状态
         itemMapper.updateStatus(itemId, status);
 
-        // 智能缓存管理：只有当状态变化影响到信息大厅显示时才清除缓存
-        if (shouldClearCache(oldStatus, status)) {
-            log.info("🗑️ [缓存清除] 状态变化影响显示: itemId={}, {}→{}", itemId, oldStatus, status);
-            cacheService.clearItemCache(itemId);
-            cacheService.clearItemListCache();
-        } else {
-            log.info("✓ [缓存保留] 状态变化不影响显示: itemId={}, {}→{}", itemId, oldStatus, status);
-        }
+        // 更新缓存中的信息状态
+        log.info("🔄 [缓存更新] 更新信息状态: itemId={}, {}→{}", itemId, oldStatus, status);
+        cacheService.updateItemStatusInCache(itemId, status);
+        
+        // 清除用户仪表盘缓存，确保统计数据更新
+        cacheService.clearUserDashboardCache(userId);
+        
+        // 清除全局信息状态统计缓存，确保主页统计数据更新
+        cacheService.clearItemStatusStatsCache();
+        
+        // 清除相关的列表缓存，确保列表中的信息状态更新
+        cacheService.clearItemListCache();
 
         // 推送实时更新事件给管理员
         log.info("[WebSocket] 广播审核通知事件, itemId={}, status={}", itemId, status);
@@ -351,7 +355,9 @@ public class ItemServiceImpl implements ItemService {
     
     /**
      * 判断状态变化是否需要清除缓存
-     * 只有当状态变化会影响到信息大厅的显示时才需要清除缓存
+     * 当状态变化会影响到信息大厅的显示时需要清除缓存
+     * 1. 显示状态发生变化（显示/不显示）
+     * 2. 或者即使是显示状态内部的变化（如从已通过变为已解决），也应清除缓存以确保显示最新状态
      */
     private boolean shouldClearCache(Integer oldStatus, Integer newStatus) {
         // 信息大厅只显示状态为1(已通过)和3(已完成)的信息
@@ -359,7 +365,16 @@ public class ItemServiceImpl implements ItemService {
         boolean newVisible = (newStatus == 1 || newStatus == 3);
         
         // 如果显示状态发生变化，则需要清除缓存
-        return oldVisible != newVisible;
+        if (oldVisible != newVisible) {
+            return true;
+        }
+        
+        // 即使都在显示范围内，但状态本身变化了（如从1变为3），也需要清除缓存以更新状态显示
+        if (oldVisible && newVisible && !oldStatus.equals(newStatus)) {
+            return true;
+        }
+        
+        return false;
     }
 
     @Override
@@ -389,7 +404,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Result<Map<String, Object>> getUserDashboard(Long userId) {
-        // 暂时禁用缓存，避免序列化问题
+        // 先尝试从缓存获取
+        Map<String, Object> cachedResult = cacheService.getCachedUserDashboard(userId);
+        if (cachedResult != null) {
+            return Result.success(cachedResult);
+        }
         
         // 查询用户
         User user = userMapper.selectById(userId);
@@ -409,6 +428,9 @@ public class ItemServiceImpl implements ItemService {
         result.put("pendingCount", pendingCount);
         result.put("resolvedCount", resolvedCount);
         result.put("unreadCount", unreadCount);
+        
+        // 缓存结果
+        cacheService.cacheUserDashboard(userId, result);
 
         return Result.success(result);
     }
@@ -465,6 +487,12 @@ public class ItemServiceImpl implements ItemService {
     
     @Override
     public Result<List<Map<String, Object>>> getItemStatusStats() {
+        // 先尝试从缓存获取
+        List<Map<String, Object>> cachedStats = cacheService.getCachedItemStatusStats();
+        if (cachedStats != null) {
+            return Result.success(cachedStats);
+        }
+        
         List<Map<String, Object>> stats = itemMapper.countByStatus();
         // 转换数据格式，将status和count转换为name和value
         List<Map<String, Object>> formattedStats = new ArrayList<>();
@@ -497,6 +525,10 @@ public class ItemServiceImpl implements ItemService {
             formattedStat.put("value", count);
             formattedStats.add(formattedStat);
         }
+        
+        // 缓存结果
+        cacheService.cacheItemStatusStats(formattedStats);
+        
         return Result.success(formattedStats);
     }
     
@@ -668,8 +700,20 @@ public class ItemServiceImpl implements ItemService {
         // 更新信息
         int result = itemMapper.update(updateItem);
         if (result > 0) {
-            log.info("🗑️ [缓存清除] 信息已修改: itemId={}", itemDTO.getId());
-            cacheService.clearItemCache(itemDTO.getId());
+            // 如果状态发生变化，更新缓存中的信息状态
+            if (updateItem.getStatus() != null) {
+                log.info("🔄 [缓存更新] 更新信息状态: itemId={}, status={}", itemDTO.getId(), updateItem.getStatus());
+                cacheService.updateItemStatusInCache(itemDTO.getId(), updateItem.getStatus());
+            }
+            
+            // 清除用户仪表盘缓存，确保统计数据更新
+            cacheService.clearUserDashboardCache(userId);
+            
+            // 清除全局信息状态统计缓存，确保主页统计数据更新
+            cacheService.clearItemStatusStatsCache();
+            
+            // 清除相关的列表缓存，确保列表中的信息状态更新
+            cacheService.clearItemListCache();
             
             // 推送实时更新事件给管理员
             log.info("[WebSocket] 广播信息更新事件, itemId={}", itemDTO.getId());
@@ -715,6 +759,9 @@ public class ItemServiceImpl implements ItemService {
             return Result.error("无权限标记该信息为已完成");
         }
         
+        // 记录原状态
+        Integer oldStatus = item.getStatus();
+        
         // 更新信息状态为已完成
         Item updateItem = new Item();
         updateItem.setId(itemId);
@@ -724,6 +771,38 @@ public class ItemServiceImpl implements ItemService {
         // 更新信息
         int result = itemMapper.update(updateItem);
         if (result > 0) {
+            // 更新缓存中的信息状态
+            log.info("🔄 [缓存更新] 更新信息状态: itemId={}, {}→3", itemId, oldStatus);
+            cacheService.updateItemStatusInCache(itemId, 3);
+            
+            // 清除用户仪表盘缓存，确保统计数据更新
+            cacheService.clearUserDashboardCache(userId);
+            
+            // 清除全局信息状态统计缓存，确保主页统计数据更新
+            cacheService.clearItemStatusStatsCache();
+            
+            // 清除相关的列表缓存，确保列表中的信息状态更新
+            cacheService.clearItemListCache();
+            
+            // 推送实时更新事件给管理员
+            log.info("[WebSocket] 广播状态更新事件, itemId={}, status=3", itemId);
+            AdminWebSocketServer.broadcastToAllAdmins(Map.of(
+                "event", "audit-notification", 
+                "message", "信息状态已更新",
+                "itemId", itemId,
+                "status", 3,
+                "timestamp", System.currentTimeMillis()
+            ));
+            
+            // 也广播给所有用户
+            ChatWebSocketServer.broadcastMessage(Map.of(
+                "event", "audit-notification", 
+                "message", "信息状态已更新",
+                "itemId", itemId,
+                "status", 3,
+                "timestamp", System.currentTimeMillis()
+            ));
+            
             return Result.success("标记完成成功");
         } else {
             return Result.error("标记完成失败");

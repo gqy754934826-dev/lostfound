@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -353,6 +355,166 @@ public class CacheServiceImpl implements CacheService {
             log.error("生成MD5哈希失败", e);
             // 如果MD5不可用，使用原始参数的哈希码
             return String.valueOf(input.hashCode());
+        }
+    }
+    
+    @Override
+    public void updateItemStatusInCache(Long itemId, Integer newStatus) {
+        try {
+            // 获取与该itemId相关的所有缓存键
+            String tagKey = ITEM_TAG_PREFIX + itemId;
+            Set<Object> cacheKeys = redisUtil.getSetMembers(tagKey);
+            
+            if (cacheKeys != null && !cacheKeys.isEmpty()) {
+                for (Object keyObj : cacheKeys) {
+                    String cacheKey = keyObj.toString();
+                    Object cachedValue = redisUtil.get(cacheKey);
+                    
+                    if (cachedValue != null) {
+                        String jsonValue = cachedValue.toString();
+                        
+                        // 根据缓存键的类型来处理不同的数据结构
+                        if (cacheKey.startsWith(USER_ITEM_DETAIL_PREFIX)) {
+                            // 处理详情缓存
+                            ItemVO itemVO = objectMapper.readValue(jsonValue, ItemVO.class);
+                            if (itemVO.getId().equals(itemId)) {
+                                itemVO.setStatus(newStatus);
+                                String updatedJson = objectMapper.writeValueAsString(itemVO);
+                                redisUtil.set(cacheKey, updatedJson, DETAIL_CACHE_EXPIRE + random.nextInt(EXPIRE_RANDOM_OFFSET));
+                            }
+                        } else if (cacheKey.startsWith(USER_ITEM_LIST_PREFIX) || cacheKey.startsWith(ADMIN_ITEM_LIST_PREFIX)) {
+                            // 处理列表缓存
+                            PageResult<ItemVO> pageResult = objectMapper.readValue(jsonValue, 
+                                new TypeReference<PageResult<ItemVO>>() {});
+                            
+                            // 更新列表中对应信息的状态
+                            if (pageResult.getList() != null) {
+                                for (ItemVO item : pageResult.getList()) {
+                                    if (item.getId().equals(itemId)) {
+                                        item.setStatus(newStatus);
+                                    }
+                                }
+                                String updatedJson = objectMapper.writeValueAsString(pageResult);
+                                // 使用原来的过期时间
+                                redisUtil.set(cacheKey, updatedJson, LIST_CACHE_EXPIRE + random.nextInt(EXPIRE_RANDOM_OFFSET));
+                            }
+                        }
+                    }
+                }
+                log.info("🔄 [缓存更新] 成功更新信息状态: itemId={}, newStatus={}, 更新了{}个缓存", 
+                    itemId, newStatus, cacheKeys.size());
+            } else {
+                log.info("🔄 [缓存更新] 未找到信息相关的缓存: itemId={}", itemId);
+            }
+        } catch (Exception e) {
+            log.error("更新信息状态缓存失败: itemId={}, status={}", itemId, newStatus, e);
+        }
+    }
+    
+    @Override
+    public void updateItemDetailInCache(Long itemId, ItemVO itemVO) {
+        try {
+            String detailKey = USER_ITEM_DETAIL_PREFIX + itemId;
+            Object cachedValue = redisUtil.get(detailKey);
+            
+            if (cachedValue != null) {
+                // 更新详情缓存
+                String jsonValue = objectMapper.writeValueAsString(itemVO);
+                long expireTime = DETAIL_CACHE_EXPIRE + random.nextInt(EXPIRE_RANDOM_OFFSET);
+                redisUtil.set(detailKey, jsonValue, expireTime);
+                
+                log.info("🔄 [缓存更新] 成功更新信息详情: itemId={}", itemId);
+            }
+        } catch (Exception e) {
+            log.error("更新信息详情缓存失败: itemId={}", itemId, e);
+        }
+    }
+    
+    @Override
+    public void cacheUserDashboard(Long userId, Map<String, Object> dashboardData) {
+        try {
+            String cacheKey = "user:dashboard:" + userId;
+            String jsonValue = objectMapper.writeValueAsString(dashboardData);
+            long expireTime = 300 + random.nextInt(60); // 5-6分钟过期时间
+            redisUtil.set(cacheKey, jsonValue, expireTime);
+            
+            log.info("💾 [缓存] 用户仪表盘数据已缓存: userId={}", userId);
+        } catch (Exception e) {
+            log.error("缓存用户仪表盘数据失败: userId={}", userId, e);
+        }
+    }
+    
+    @Override
+    public Map<String, Object> getCachedUserDashboard(Long userId) {
+        try {
+            String cacheKey = "user:dashboard:" + userId;
+            Object cachedValue = redisUtil.get(cacheKey);
+            
+            if (cachedValue != null) {
+                String jsonValue = cachedValue.toString();
+                Map<String, Object> result = objectMapper.readValue(jsonValue, 
+                    new TypeReference<Map<String, Object>>() {});
+                log.info("📚 [缓存] 从缓存获取用户仪表盘数据: userId={}", userId);
+                return result;
+            }
+        } catch (Exception e) {
+            log.error("从缓存获取用户仪表盘数据失败: userId={}", userId, e);
+        }
+        return null;
+    }
+    
+    @Override
+    public void clearUserDashboardCache(Long userId) {
+        try {
+            String cacheKey = "user:dashboard:" + userId;
+            redisUtil.delete(cacheKey);
+            log.info("🗑️ [缓存] 用户仪表盘缓存已清除: userId={}", userId);
+        } catch (Exception e) {
+            log.error("清除用户仪表盘缓存失败: userId={}", userId, e);
+        }
+    }
+    
+    @Override
+    public void cacheItemStatusStats(List<Map<String, Object>> stats) {
+        try {
+            String cacheKey = "item:status:stats";
+            String jsonValue = objectMapper.writeValueAsString(stats);
+            long expireTime = 300 + random.nextInt(60); // 5-6分钟过期时间
+            redisUtil.set(cacheKey, jsonValue, expireTime);
+            
+            log.info("💾 [缓存] 全局信息状态统计已缓存: 条目数量={}", stats != null ? stats.size() : 0);
+        } catch (Exception e) {
+            log.error("缓存全局信息状态统计失败", e);
+        }
+    }
+    
+    @Override
+    public List<Map<String, Object>> getCachedItemStatusStats() {
+        try {
+            String cacheKey = "item:status:stats";
+            Object cachedValue = redisUtil.get(cacheKey);
+            
+            if (cachedValue != null) {
+                String jsonValue = cachedValue.toString();
+                List<Map<String, Object>> result = objectMapper.readValue(jsonValue, 
+                    new TypeReference<List<Map<String, Object>>>() {});
+                log.info("📚 [缓存] 从缓存获取全局信息状态统计: 条目数量={}", result != null ? result.size() : 0);
+                return result;
+            }
+        } catch (Exception e) {
+            log.error("从缓存获取全局信息状态统计失败", e);
+        }
+        return null;
+    }
+    
+    @Override
+    public void clearItemStatusStatsCache() {
+        try {
+            String cacheKey = "item:status:stats";
+            redisUtil.delete(cacheKey);
+            log.info("🗑️ [缓存] 全局信息状态统计缓存已清除");
+        } catch (Exception e) {
+            log.error("清除全局信息状态统计缓存失败", e);
         }
     }
 }
